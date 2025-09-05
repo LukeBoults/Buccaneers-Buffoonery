@@ -223,7 +223,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6441288626067383099}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 100
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -237,9 +237,9 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 1
 --- !u!114 &-3806556971158092382
@@ -272,8 +272,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  thrust: 10
-  turnSpeed: 50
+  acceleration: 4
+  reverseAcceleration: 3
+  maxForwardSpeed: 10
+  maxReverseSpeed: 4
+  steerTorque: 2
+  steerSpeedScale: 0.6
+  lateralDamping: 4
+  brakeDragMultiplier: 4
+  baseLinearDrag: 0.5
+  baseAngularDrag: 1.5
+  uprightTorque: 8
+  uprightDamping: 2.5
+  useBuoyancy: 1
+  waterLevelY: -1.2
+  buoyancyStrength: 50
+  buoyancyDamping: 8
+  addBob: 1
+  bobAmplitude: 0.15
+  bobFrequency: 0.3
+  buoyancyUsesGravity: 1
+  inputSendInterval: 0.033333335
+  ThrottleNV:
+    m_InternalValue: 0
+  SteerNV:
+    m_InternalValue: 0
 --- !u!114 &2385184533287566019
 MonoBehaviour:
   m_ObjectHideFlags: 0

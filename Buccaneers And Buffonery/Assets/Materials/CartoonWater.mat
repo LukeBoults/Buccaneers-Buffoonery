@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: StylisedWater
+  m_Name: CartoonWater
   m_Shader: {fileID: -6465566751694194690, guid: 70e47101d9e978044a9830546dc5f5e1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -85,13 +85,13 @@ Material:
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
-    - _Choppiness: 0.1
+    - _Choppiness: 0.5
     - _Cull: 2
     - _Cutoff: 0.5
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _FlowSpeed: 0.01
-    - _FlowStrength: 0.0075
+    - _FlowSpeed: 1
+    - _FlowStrength: 0.001
     - _FoamDistance: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -102,7 +102,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Size: 3
+    - _Size: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

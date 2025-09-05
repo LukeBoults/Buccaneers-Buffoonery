@@ -1,31 +1,58 @@
 using Unity.Netcode;
 using UnityEngine;
-using Unity.Cinemachine;
+using Unity.Cinemachine;  // new Cinemachine namespace in CM 3.x
 
 public class OwnerVcamSpawner : NetworkBehaviour
 {
-    [SerializeField] CinemachineCamera vcamPrefab;
-    [SerializeField] Transform followTarget;   // e.g. ship root or a child "CameraTarget"
-    [SerializeField] Transform lookAtTarget;   // often same as followTarget
+    [Header("Camera Prefab (no NetworkObject)")]
+    [SerializeField] private CinemachineCamera vcamPrefab;
 
-    CinemachineCamera myVcam;
+    [Header("Targets")]
+    [SerializeField] private Transform followTarget; // e.g. ship root or a child "CameraTarget"
+    [SerializeField] private Transform lookAtTarget; // often same as followTarget
+
+    private CinemachineCamera myVcam;
 
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
 
-        // Spawn a local-only vcam
+        if (vcamPrefab == null)
+        {
+            Debug.LogWarning("[OwnerVcamSpawner] vcamPrefab not assigned.");
+            return;
+        }
+
+        // Instantiate a local-only vcam
         myVcam = Instantiate(vcamPrefab);
+
+        // Make sure it survives scene changes if NGO SceneManager loads new scenes
+        DontDestroyOnLoad(myVcam.gameObject);
+
+        // Configure follow/lookAt
         myVcam.Follow = followTarget != null ? followTarget : transform;
         myVcam.LookAt = lookAtTarget != null ? lookAtTarget : transform;
 
-        // Optional: raise priority so it wins
+        // Raise priority so this vcam takes over
         myVcam.Priority = 20;
     }
 
-    void OnDestroy()
+    public override void OnNetworkDespawn()
     {
         if (IsOwner && myVcam != null)
+        {
             Destroy(myVcam.gameObject);
+            myVcam = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Safety cleanup if despawn wasn't called
+        if (myVcam != null)
+        {
+            Destroy(myVcam.gameObject);
+            myVcam = null;
+        }
     }
 }
