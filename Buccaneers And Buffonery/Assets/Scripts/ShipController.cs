@@ -44,7 +44,7 @@ public class ShipController : NetworkBehaviour
 
     // -------- Buoyancy --------
     [Header("Water / Buoyancy")]
-    public float waterLevelY = 0f;
+    public float waterLevelY = 1f;
     public float buoyancyStrength = 60f;
     public float buoyancyDamping = 10f;
     public float maxUpAccel = 20f;
