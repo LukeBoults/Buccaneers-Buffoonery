@@ -7,6 +7,7 @@ using UnityEngine;
 /// - Server-only spawns; clients get replicated tiles.
 /// - Allows overlap (with small jitter), 90°-snap rotation to suit modular pieces.
 /// - Optional foliage/props pass on top of land tiles.
+/// - NEW: Each island is parented under a networked "Island N" group for clean hierarchy on all clients.
 public class NetworkIslandSpawner : NetworkBehaviour
 {
     [Header("Tile Variants (MUST have NetworkObject)")]
@@ -15,6 +16,10 @@ public class NetworkIslandSpawner : NetworkBehaviour
 
     [Header("Optional Foliage/Props (MUST have NetworkObject)")]
     public GameObject[] decorPrefabs;
+
+    [Header("Island Group Parent (MUST have NetworkObject)")]
+    [Tooltip("Empty prefab with a NetworkObject to act as the parent container for each island.")]
+    public GameObject islandGroupPrefab;
 
     [Header("Area / Grid")]
     public float tileSize = 10f;
@@ -40,7 +45,7 @@ public class NetworkIslandSpawner : NetworkBehaviour
     public int tilesPerFrame = 400;
 
     [Header("Randomness")]
-    public int seed = -1;                             // -1 = random each run
+    public int seed = -1; // -1 = random each run
 
     private System.Random rng;
     private bool _spawned;
@@ -52,6 +57,12 @@ public class NetworkIslandSpawner : NetworkBehaviour
         if (islandTiles == null || islandTiles.Length == 0)
         {
             Debug.LogError("[KenneyNetworkIslandSpawner] No island tiles assigned.");
+            return;
+        }
+
+        if (islandGroupPrefab == null || islandGroupPrefab.GetComponent<NetworkObject>() == null)
+        {
+            Debug.LogError("[KenneyNetworkIslandSpawner] 'islandGroupPrefab' is missing or has no NetworkObject. Parenting will not replicate.");
             return;
         }
 
@@ -87,7 +98,11 @@ public class NetworkIslandSpawner : NetworkBehaviour
                 break;
 
             centers.Add(center);
-            RandomWalkIsland(origin, center, cellsX, cellsZ);
+
+            // Create a networked parent for this island
+            var groupNO = CreateIslandGroup(i, origin + new Vector3(center.x * tileSize, 0f, center.y * tileSize));
+
+            RandomWalkIsland(origin, center, cellsX, cellsZ, groupNO);
         }
     }
 
@@ -103,33 +118,46 @@ public class NetworkIslandSpawner : NetworkBehaviour
                 break;
 
             centers.Add(center);
-            foreach (var _ in RandomWalkIslandEnum(origin, center, cellsX, cellsZ))
+
+            // Create a networked parent for this island
+            var groupNO = CreateIslandGroup(i, origin + new Vector3(center.x * tileSize, 0f, center.y * tileSize));
+
+            foreach (var _ in RandomWalkIslandEnum(origin, center, cellsX, cellsZ, groupNO))
             {
                 if (spawnAsync && ++budget >= tilesPerFrame) { budget = 0; yield return null; }
             }
         }
     }
 
-    private void RandomWalkIsland(Vector3 origin, Vector2Int center, int cellsX, int cellsZ)
+    private NetworkObject CreateIslandGroup(int islandIndex, Vector3 approxPosition)
+    {
+        var go = Instantiate(islandGroupPrefab, approxPosition, Quaternion.identity);
+        go.name = $"Island {islandIndex + 1}";
+        var no = go.GetComponent<NetworkObject>();
+        no.Spawn(true);
+        return no;
+    }
+
+    private void RandomWalkIsland(Vector3 origin, Vector2Int center, int cellsX, int cellsZ, NetworkObject groupNO)
     {
         int steps = rng.Next(tilesPerIsland.x, tilesPerIsland.y + 1);
         Vector2Int pos = center;
 
         for (int s = 0; s < steps; s++)
         {
-            SpawnOneTileAtCell(origin, pos);
+            SpawnOneTileAtCell(origin, pos, groupNO);
             Step(ref pos, cellsX, cellsZ);
         }
     }
 
-    private IEnumerable<object> RandomWalkIslandEnum(Vector3 origin, Vector2Int center, int cellsX, int cellsZ)
+    private IEnumerable<object> RandomWalkIslandEnum(Vector3 origin, Vector2Int center, int cellsX, int cellsZ, NetworkObject groupNO)
     {
         int steps = rng.Next(tilesPerIsland.x, tilesPerIsland.y + 1);
         Vector2Int pos = center;
 
         for (int s = 0; s < steps; s++)
         {
-            SpawnOneTileAtCell(origin, pos);
+            SpawnOneTileAtCell(origin, pos, groupNO);
             yield return null;
             Step(ref pos, cellsX, cellsZ);
         }
@@ -145,7 +173,7 @@ public class NetworkIslandSpawner : NetworkBehaviour
         );
     }
 
-    private void SpawnOneTileAtCell(Vector3 origin, Vector2Int cell)
+    private void SpawnOneTileAtCell(Vector3 origin, Vector2Int cell, NetworkObject groupNO)
     {
         var prefab = islandTiles[rng.Next(islandTiles.Length)];
         if (!prefab) return;
@@ -171,9 +199,12 @@ public class NetworkIslandSpawner : NetworkBehaviour
             return;
         }
 
+        // ✅ Parent BEFORE spawn so NGO sends the parent relationship on spawn
+        if (groupNO != null) go.transform.SetParent(groupNO.transform, true);
+
         no.Spawn(true);
 
-        // decor pass
+        // ---------- decor (same trick) ----------
         if (decorPrefabs != null && decorPrefabs.Length > 0 && (float)rng.NextDouble() < decorChance)
         {
             var decor = decorPrefabs[rng.Next(decorPrefabs.Length)];
@@ -183,7 +214,12 @@ public class NetworkIslandSpawner : NetworkBehaviour
                 float dz = ((float)rng.NextDouble() * 2f - 1f) * decorOffsetJitter.y;
                 var deco = Instantiate(decor, go.transform.position + new Vector3(dx, 0f, dz), Quaternion.Euler(0f, yaw, 0f));
                 var decoNO = deco.GetComponent<NetworkObject>();
-                if (decoNO) decoNO.Spawn(true); else Destroy(deco);
+                if (decoNO)
+                {
+                    if (groupNO != null) deco.transform.SetParent(groupNO.transform, true); // parent first
+                    decoNO.Spawn(true);
+                }
+                else Destroy(deco);
             }
         }
     }

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3930a4f097e2a924181267bf61359652, type: 3}
+  m_Name: CargoHold
+  m_EditorClassIdentifier: 
+  type: 3
+  maxLevel: 5
+  baseWood: 0
+  baseStone: 4
+  baseMetal: 0
+  baseCloth: 2
+  basePowder: 2
+  costScale: 0.35
+  hullHpPerLevel: 0
+  moveSpeedMultStep: 0
+  turnRateMultStep: 0
+  cargoFlatPerLevel: 10
+  cannonDmgMultStep: 0

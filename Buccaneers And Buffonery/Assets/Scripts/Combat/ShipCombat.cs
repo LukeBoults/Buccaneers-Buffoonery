@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Netcode;
 
 [RequireComponent(typeof(NetworkObject))]
@@ -6,9 +6,13 @@ using Unity.Netcode;
 public class ShipCombat : NetworkBehaviour
 {
     [Header("Cannons")]
-    public Transform[] portMuzzles;     // left side (X- to world-left when ship faces +Z)
-    public Transform[] starboardMuzzles;// right side
-    public GameObject cannonballPrefab; // must have NetworkObject + Rigidbody + Cannonball + NetworkTransform
+    public Transform[] portMuzzles;       // left
+    public Transform[] starboardMuzzles;  // right
+    public GameObject cannonballPrefab;   // must have NetworkObject + Rigidbody + Cannonball (+ NetworkTransform)
+
+    [Header("Muzzle VFX (index-aligned with muzzles)")]
+    public ParticleSystem[] portMuzzleVFX;      // same length/order as portMuzzles
+    public ParticleSystem[] starboardMuzzleVFX; // same length/order as starboardMuzzles
 
     [Header("Ballistics")]
     public float muzzleSpeed = 35f;
@@ -18,8 +22,12 @@ public class ShipCombat : NetworkBehaviour
     public float inheritShipVelocity = 1.0f;
 
     [Header("Timing")]
-    public float salvoCooldown = 1.25f; // seconds between broadsides
+    public float salvoCooldown = 1.25f;    // seconds between broadsides
     public float perBarrelStagger = 0.05f; // small stagger for nice feel
+
+    [Header("Damage")]
+    [Tooltip("Base damage dealt by each cannonball before multipliers.")]
+    public float baseDamage = 20f;
 
     float nextPortTime, nextStarboardTime;
     Rigidbody shipRB;
@@ -46,7 +54,6 @@ public class ShipCombat : NetworkBehaviour
         if (side == Side.Port && Time.time < nextPortTime) return;
         if (side == Side.Starboard && Time.time < nextStarboardTime) return;
 
-        // send request to server; server validates & spawns
         FireSideServerRpc(side == Side.Port);
 
         if (side == Side.Port) nextPortTime = Time.time + salvoCooldown;
@@ -59,15 +66,13 @@ public class ShipCombat : NetworkBehaviour
         var muzzles = isPort ? portMuzzles : starboardMuzzles;
         if (muzzles == null || muzzles.Length == 0 || cannonballPrefab == null) return;
 
-        // optional: different damage for close/long range etc.
-
-        // Stagger fire a bit for feel
         StartCoroutine(FireSalvo(muzzles, isPort));
     }
 
     System.Collections.IEnumerator FireSalvo(Transform[] muzzles, bool isPort)
     {
         var shipVel = shipRB ? shipRB.linearVelocity : Vector3.zero;
+        float dmg = Mathf.Max(0f, baseDamage) * Mathf.Max(0.01f, shipCtrl ? shipCtrl.CannonDamageMultiplier : 1f);
 
         for (int i = 0; i < muzzles.Length; i++)
         {
@@ -89,13 +94,58 @@ public class ShipCombat : NetworkBehaviour
             // Spawn & launch
             var go = Instantiate(cannonballPrefab, m.position, Quaternion.LookRotation(dir, Vector3.up));
             var no = go.GetComponent<NetworkObject>();
-            no.Spawn(true);
+            if (no) no.Spawn(true);
 
             var ball = go.GetComponent<Cannonball>();
-            ball.Launch(m.position, vel, NetworkObjectId);
+            if (ball != null)
+            {
+                ball.Launch(m.position, vel, NetworkObjectId);
+                TrySetBallDamage(ball, dmg);
+            }
+            else
+            {
+                TrySetDamageViaCommonPatterns(go, dmg);
+            }
 
-            // TODO: Muzzle flash SFX/VFX (ClientRpc) if you have VFX
+            // Tell all clients which exact muzzle index to flash
+            MuzzleFlashClientRpc(isPort, i);
+
             yield return new WaitForSeconds(perBarrelStagger);
         }
+    }
+
+    // Damage helpers (same as before; keep if your Cannonball doesn’t expose a clear API)
+    void TrySetBallDamage(Component ball, float dmg)
+    {
+        var mi = ball.GetType().GetMethod("SetDamage",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+        if (mi != null) { mi.Invoke(ball, new object[] { dmg }); return; }
+
+        var fi = ball.GetType().GetField("damage");
+        if (fi != null && fi.FieldType == typeof(float)) { fi.SetValue(ball, dmg); return; }
+
+        var pi = ball.GetType().GetProperty("Damage");
+        if (pi != null && pi.PropertyType == typeof(float) && pi.CanWrite) { pi.SetValue(ball, dmg); return; }
+    }
+    void TrySetDamageViaCommonPatterns(GameObject go, float dmg)
+    {
+        foreach (var c in go.GetComponents<Component>()) TrySetBallDamage(c, dmg);
+        foreach (var c in go.GetComponentsInChildren<Component>()) TrySetBallDamage(c, dmg);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // MUZZLE FLASH: use pre-assigned per-muzzle ParticleSystems
+    [ClientRpc]
+    void MuzzleFlashClientRpc(bool isPort, int muzzleIndex)
+    {
+        var vfxArray = isPort ? portMuzzleVFX : starboardMuzzleVFX;
+        if (vfxArray == null || muzzleIndex < 0 || muzzleIndex >= vfxArray.Length) return;
+
+        var ps = vfxArray[muzzleIndex];
+        if (!ps) return;
+
+        // One-shot: clear then play to ensure it pops even if mid-sim
+        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        ps.Play(true);
     }
 }

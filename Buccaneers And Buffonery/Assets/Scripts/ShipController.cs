@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Netcode;
 
 /// Smooth, arcadey boat controller (NO WIND).
@@ -70,6 +70,24 @@ public class ShipController : NetworkBehaviour
     [Header("Input / Net")]
     public float inputSendInterval = 1f / 30f;
 
+    // ─────────────────────────────────────────────────────────────────────────────
+    // UPGRADES (set by ShipUpgrades)
+    [Header("Upgrades (runtime multipliers)")]
+    /// <summary>Multiplies maxForwardSpeed (e.g., 1.24 = +24%).</summary>
+    public float MaxSpeedMultiplier { get; set; } = 1f;
+    /// <summary>Multiplies steering authority (e.g., 1.10 = +10%).</summary>
+    public float TurnRateMultiplier { get; set; } = 1f;
+    /// <summary>Held here for cannons/other systems to read.</summary>
+    public float CannonDamageMultiplier { get; set; } = 1f;
+    /// <summary>Optional: extra cargo capacity if you implement it.</summary>
+    public int BonusCargo { get; set; } = 0;
+
+    float bonusHullAdd = 0f; // stored for your health/ship UI to read if you want
+    /// <summary>Called by the upgrade system to add max hull HP (visuals/logic up to you).</summary>
+    public void SetBonusHull(float add) { bonusHullAdd = add; }
+    public float GetBonusHull() => bonusHullAdd;
+    // ─────────────────────────────────────────────────────────────────────────────
+
     // Runtime
     Rigidbody rb;
     float bobPhase;
@@ -94,7 +112,7 @@ public class ShipController : NetworkBehaviour
 
     // HUD aliases
     public float CurrentThrottle => IsOwner ? cliSail01 : ThrottleNV.Value; // 0..1
-    public float CurrentSteer => IsOwner ? cliWheel : SteerNV.Value;    // -1..1
+    public float CurrentSteer => IsOwner ? cliWheel : SteerNV.Value;        // -1..1
 
     public override void OnNetworkSpawn()
     {
@@ -173,7 +191,9 @@ public class ShipController : NetworkBehaviour
         Vector3 v = rb.linearVelocity;
         Vector3 vLocal = transform.InverseTransformDirection(v);
         float fwd = Mathf.Max(0f, vLocal.z); // no commanded reverse
-        float targetSpeed = srvSail01 * maxForwardSpeed;
+
+        // ✅ Apply speed multiplier from upgrades
+        float targetSpeed = srvSail01 * maxForwardSpeed * Mathf.Max(0.1f, MaxSpeedMultiplier);
 
         // PD-ish speed control
         float speedErr = targetSpeed - fwd;
@@ -188,11 +208,11 @@ public class ShipController : NetworkBehaviour
         Vector3 lateral = transform.right * vLocal.x;
         rb.AddForce(-lateral * lateralDamping, ForceMode.Acceleration);
 
-        // Steering (speed-scaled, extra at low sails)
+        // Steering (speed-scaled, extra at low sails) + ✅ TurnRateMultiplier
         float speed01 = Mathf.Clamp01(fwd / Mathf.Max(1f, maxForwardSpeed));
         float steerScale = Mathf.Lerp(1f - steerSpeedScale, 1f, speed01);
         float sailBoost = Mathf.Lerp(1f + lowSailSteerBoost, 1f, srvSail01);
-        float yawTorque = srvWheel * steerTorque * steerScale * sailBoost;
+        float yawTorque = srvWheel * steerTorque * steerScale * sailBoost * Mathf.Max(0.1f, TurnRateMultiplier);
         rb.AddTorque(Vector3.up * yawTorque, ForceMode.Acceleration);
 
         // Cosmetic bank

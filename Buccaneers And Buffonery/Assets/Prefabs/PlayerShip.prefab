@@ -1120,13 +1120,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 9113356024460764710}
     m_Modifications:
+    - target: {fileID: 800845143005342969, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1480705758666249169, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2939212559293573635, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4186470608034871016, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
       propertyPath: m_Name
       value: FireEffectS
       objectReference: {fileID: 0}
     - target: {fileID: 4186470608034871016, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6324283893382468811, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1168,11 +1180,32 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7205043699410999993, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7291491919370452814, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7917120168021017062, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8888310896362749383, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+--- !u!198 &5154743768683389553 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 7917120168021017062, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+  m_PrefabInstance: {fileID: 3050651073782047639}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &9048374095174448988 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6324283893382468811, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
@@ -1186,6 +1219,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6257157492261046276}
     m_Modifications:
+    - target: {fileID: 800845143005342969, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1480705758666249169, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2939212559293573635, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4186470608034871016, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
       propertyPath: m_Name
       value: CannonEffectP
@@ -1234,6 +1279,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7205043699410999993, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7291491919370452814, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7917120168021017062, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8888310896362749383, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1242,6 +1303,11 @@ PrefabInstance:
 --- !u!4 &1683125778318426364 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6324283893382468811, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+  m_PrefabInstance: {fileID: 4656712444896367671}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &3260805774284756433 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 7917120168021017062, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
   m_PrefabInstance: {fileID: 4656712444896367671}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6171449026543591018
@@ -1345,6 +1411,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: acccda0d6addb7e498bf83b60cb230af, type: 3}
       insertIndex: -1
       addedObject: {fileID: -8100921125775996971}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: acccda0d6addb7e498bf83b60cb230af, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1841317690335335286}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: acccda0d6addb7e498bf83b60cb230af, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8211384735614727240}
   m_SourcePrefab: {fileID: 100100000, guid: acccda0d6addb7e498bf83b60cb230af, type: 3}
 --- !u!4 &5922195355083143553 stripped
 Transform:
@@ -1587,6 +1659,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  baseMaxHealth: 100
   maxHealth: 100
   Health:
     m_InternalValue: 100
@@ -1608,11 +1681,16 @@ MonoBehaviour:
   starboardMuzzles:
   - {fileID: 9113356024460764710}
   cannonballPrefab: {fileID: 1886321219660389039, guid: 54406236de959c442ba2fb92bec8ff95, type: 3}
+  portMuzzleVFX:
+  - {fileID: 3260805774284756433}
+  starboardMuzzleVFX:
+  - {fileID: 5154743768683389553}
   muzzleSpeed: 100
   spreadDegrees: 2.5
   inheritShipVelocity: 1
   salvoCooldown: 1.25
   perBarrelStagger: 0.05
+  baseDamage: 20
 --- !u!114 &-8100921125775996971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1661,3 +1739,32 @@ MonoBehaviour:
   fadeEndDistance: 32
   disableWhenFar: 1
   maxHealth: 100
+--- !u!114 &1841317690335335286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6441288626067383099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6482e3fce9c2944a8493f2624c8c70d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &8211384735614727240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6441288626067383099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91ae656efc3aab14aa8cf9b7fe6a2900, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  catalog: {fileID: 11400000, guid: 715b7da46c2e1684c91c670c8a49dfad, type: 2}
+  ship: {fileID: 5558510245730734838}
+  ownerInventory: {fileID: 1841317690335335286}

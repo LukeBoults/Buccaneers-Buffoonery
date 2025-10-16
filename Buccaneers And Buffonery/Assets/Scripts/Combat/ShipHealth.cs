@@ -5,9 +5,9 @@ using Unity.Netcode;
 public class ShipHealth : NetworkBehaviour
 {
     [Header("Health")]
-    public float maxHealth = 100f;
+    public float baseMaxHealth = 100f;   // renamed for clarity
+    public float maxHealth;              // runtime computed
 
-    // Server writes, everyone reads
     public NetworkVariable<float> Health = new NetworkVariable<float>(
         100f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
@@ -15,7 +15,16 @@ public class ShipHealth : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer) Health.Value = maxHealth;
+        if (IsServer)
+        {
+            float bonus = 0f;
+            var ctrl = GetComponent<ShipController>();
+            if (ctrl) bonus = ctrl.GetBonusHull();
+            maxHealth = baseMaxHealth + Mathf.Max(0f, bonus);
+
+            Health.Value = maxHealth;
+        }
+
         Health.OnValueChanged += (_, now) =>
         {
             if (IsServer && now <= 0f) HandleDeathServer();
@@ -36,23 +45,18 @@ public class ShipHealth : NetworkBehaviour
         ApplyDamage(amount);
     }
 
-    // Called by projectiles directly on server (no RPC required)
     public void ApplyDamage(float amount)
     {
-        if (!IsServer) return;
-        if (Health.Value <= 0f) return;
+        if (!IsServer || Health.Value <= 0f) return;
         Health.Value = Mathf.Max(0f, Health.Value - Mathf.Abs(amount));
     }
 
     void HandleDeathServer()
     {
-        // Example: disable movement, start a sink/respawn, etc.
         var ctrl = GetComponent<ShipController>();
         if (ctrl) ctrl.enabled = false;
 
         OnServerDeath?.Invoke();
-
-        // Optional: simple sink & despawn after 5s
         StartCoroutine(SinkAndDespawn());
     }
 
