@@ -128,7 +128,7 @@ public class ShipHUD : MonoBehaviour
         if (inventory && inventoryLabel)
         {
             var c = inventory.Counts.Value; // network-synced snapshot
-            inventoryLabel.text = $"W:{c.wood}  S:{c.stone}  M:{c.metal}  C:{c.cloth}  P:{c.powder}";
+            inventoryLabel.text = $"Wood:{c.wood}  Stone:{c.stone}  Metal:{c.metal}  Cloth:{c.cloth}  Powder:{c.powder}";
         }
     }
 }

@@ -35,6 +35,13 @@ public class ShipController : NetworkBehaviour
     [Tooltip("Tiny cosmetic roll while turning (deg). 0 = off.")]
     public float bankVisualRollDeg = 6f;
 
+    [Header("Steer Behavior")]
+    [Tooltip("If ON: ship only turns while A/D are held (no wheel memory).")]
+    public bool steerOnlyWhenHeld = true;
+
+    [Tooltip("Extra yaw damping when no steer input (deg/s^2-ish).")]
+    public float yawDampNoInput = 6f;
+
     // -------- Drag / Damping --------
     [Header("Drag / Damping")]
     public float baseLinearDrag = 0.45f;
@@ -165,12 +172,23 @@ public class ShipController : NetworkBehaviour
         // Wheel
         bool left = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
         bool right = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
-        if (left) cliWheel -= wheelChangeRate * Time.deltaTime;
-        if (right) cliWheel += wheelChangeRate * Time.deltaTime;
-        if (!left && !right && wheelAutoCenterRate > 0f)
-            cliWheel = Mathf.MoveTowards(cliWheel, 0f, wheelAutoCenterRate * Time.deltaTime);
-        if (Input.GetKeyDown(KeyCode.R)) cliWheel = 0f;
-        cliWheel = Mathf.Clamp(cliWheel, -1f, 1f);
+
+        if (steerOnlyWhenHeld)
+        {
+            // Instant steering: -1 (left), 0 (none or both), +1 (right)
+            if (left == right) cliWheel = 0f;       // none or both pressed
+            else cliWheel = right ? 1f : -1f;
+        }
+        else
+        {
+            // Original “wheel memory” behavior
+            if (left) cliWheel -= wheelChangeRate * Time.deltaTime;
+            if (right) cliWheel += wheelChangeRate * Time.deltaTime;
+            if (!left && !right && wheelAutoCenterRate > 0f)
+                cliWheel = Mathf.MoveTowards(cliWheel, 0f, wheelAutoCenterRate * Time.deltaTime);
+            if (Input.GetKeyDown(KeyCode.R)) cliWheel = 0f;
+            cliWheel = Mathf.Clamp(cliWheel, -1f, 1f);
+        }
 
         bool brake = Input.GetKey(KeyCode.Space);
 
@@ -246,6 +264,14 @@ public class ShipController : NetworkBehaviour
         {
             rb.maxAngularVelocity = maxAngularVelNoImpact;
             rb.angularDamping = baseAngularDrag;
+        }
+
+        if (Mathf.Abs(srvWheel) < 0.01f && yawDampNoInput > 0f)
+        {
+            Vector3 wLocal = transform.InverseTransformDirection(rb.angularVelocity);
+            float damp = yawDampNoInput * Mathf.Deg2Rad; // convert-ish to rad/s^2 feel
+            wLocal.y = Mathf.MoveTowards(wLocal.y, 0f, damp * Time.fixedDeltaTime);
+            rb.angularVelocity = transform.TransformDirection(wLocal);
         }
     }
 

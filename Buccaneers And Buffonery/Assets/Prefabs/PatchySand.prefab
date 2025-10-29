@@ -98,7 +98,6 @@ GameObject:
   - component: {fileID: 6338064565254777762}
   - component: {fileID: 3483483484352793981}
   - component: {fileID: -4020485397673623331}
-  - component: {fileID: -8021235963867698947}
   - component: {fileID: -7505123802679417782}
   m_Layer: 0
   m_Name: PatchySand
@@ -201,28 +200,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!64 &-8021235963867698947
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7025387723512850512}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -1644833528569820151, guid: 78ea8d5b44645be498f856f325fdae44, type: 3}
 --- !u!54 &-7505123802679417782
 Rigidbody:
   m_ObjectHideFlags: 0

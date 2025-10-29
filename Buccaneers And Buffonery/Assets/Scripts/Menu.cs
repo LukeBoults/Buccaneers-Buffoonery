@@ -265,13 +265,11 @@ public class Menu : MonoBehaviour
     {
         if (!hostInfoText || !currentLobby.IsValid()) return;
 
-        string name = SteamMatchmaking.GetLobbyData(currentLobby, "name");
         string code = SteamMatchmaking.GetLobbyData(currentLobby, "code");
-        string max = SteamMatchmaking.GetLobbyData(currentLobby, "max");
-        int members = SteamMatchmaking.GetNumLobbyMembers(currentLobby);
+        if (string.IsNullOrEmpty(code))
+            code = currentShortCode;
 
-        hostInfoText.text =
-            $"{name}\nCode: {code}\nLobbyID: {currentLobby.m_SteamID}\nMembers: {members}/{max}";
+        hostInfoText.text = $"Room Code: {code}";
     }
     void RefreshUI()
     {
