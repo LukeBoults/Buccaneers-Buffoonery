@@ -59,38 +59,43 @@ public class ShipUpgrades : NetworkBehaviour
         Levels.OnValueChanged += (_, __) => ApplyToShip(); // update on clients too
     }
 
-    // Apply buffs to the ship based on levels (non-authoritative math is fine clientside for visuals)
+    // NEW: simple accessor used by ShopUpgradeRow
+    public int GetLevel(UpgradeType t) => Levels.Value.Get(t);
+
     void ApplyToShip()
     {
         if (!ship || catalog == null) return;
         var lv = Levels.Value;
 
-        // These assume ShipController exposes tunables; adjust names to your fields.
-        // Safe defaults if not present.
-        // Example multipliers / adds:
-        if (catalog.Get(UpgradeType.MoveSpeed) != null)
+        var defMove = catalog.GetDef(UpgradeType.MoveSpeed);
+        var defTurn = catalog.GetDef(UpgradeType.TurnRate);
+        var defHull = catalog.GetDef(UpgradeType.HullHP);
+        var defCargo = catalog.GetDef(UpgradeType.CargoHold);
+        var defCannon = catalog.GetDef(UpgradeType.CannonDamage);
+
+        if (defMove != null)
         {
-            float mult = 1f + lv.moveSpeed * catalog.Get(UpgradeType.MoveSpeed).moveSpeedMultStep;
-            ship.MaxSpeedMultiplier = mult; // add this property if you don’t have one
+            float mult = 1f + lv.moveSpeed * defMove.moveSpeedMultStep;
+            ship.MaxSpeedMultiplier = mult;
         }
-        if (catalog.Get(UpgradeType.TurnRate) != null)
+        if (defTurn != null)
         {
-            float mult = 1f + lv.turnRate * catalog.Get(UpgradeType.TurnRate).turnRateMultStep;
+            float mult = 1f + lv.turnRate * defTurn.turnRateMultStep;
             ship.TurnRateMultiplier = mult;
         }
-        if (catalog.Get(UpgradeType.HullHP) != null)
+        if (defHull != null)
         {
-            float add = lv.hullHP * catalog.Get(UpgradeType.HullHP).hullHpPerLevel;
-            ship.SetBonusHull(add); // you can implement SetBonusHull to raise max HP and optionally heal
+            float add = lv.hullHP * defHull.hullHpPerLevel;
+            ship.SetBonusHull(add);
         }
-        if (catalog.Get(UpgradeType.CargoHold) != null)
+        if (defCargo != null)
         {
-            int add = lv.cargo * catalog.Get(UpgradeType.CargoHold).cargoFlatPerLevel;
+            int add = lv.cargo * defCargo.cargoFlatPerLevel;
             ship.BonusCargo = add;
         }
-        if (catalog.Get(UpgradeType.CannonDamage) != null)
+        if (defCannon != null)
         {
-            float mult = 1f + lv.cannon * catalog.Get(UpgradeType.CannonDamage).cannonDmgMultStep;
+            float mult = 1f + lv.cannon * defCannon.cannonDmgMultStep;
             ship.CannonDamageMultiplier = mult;
         }
     }
